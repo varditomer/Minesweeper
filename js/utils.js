@@ -28,15 +28,3 @@ function getClassName(location) {
 	return cellClass
 }
 
-//check negs
-function countNegs(cellIdxI, cellIdxJ, board) {
-    var negsCount = 0
-    for (var i = cellIdxI - 1; i <= cellIdxI + 1; i++) {
-        if (i < 0 || i >= board.length) continue
-        for (var j = cellIdxJ - 1; j <= cellIdxJ + 1; j++) {
-            if (j < 0 || j >= board[i].length) continue
-            if (board[i][j].isMine) negsCount++
-        }
-    }
-    return negsCount
-}
