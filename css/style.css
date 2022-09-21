@@ -1,0 +1,48 @@
+body {
+    background-color: black;
+    color: white;
+    margin: auto;
+}
+
+table {
+    margin: 10px;
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    background-color: gray;
+    cursor: pointer;
+}
+
+.cell img {
+    width: 75%;
+    height: auto;
+}
+
+.marked {
+    background-color: rgb(71, 70, 70);
+    
+
+     /* need to fit all cell */
+}
+
+.mine-clicked {
+    background-color: rgb(243, 75, 75);
+}
+
+
+/* 
+========================
+  SHOW || HIDE ELEMENT
+========================
+*/
+
+.show {
+    display: block;
+}
+
+.hide {
+    display: none;
+}
