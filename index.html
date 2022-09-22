@@ -15,16 +15,28 @@
 <body onload="initGame()">
 
     <p class="next-num"></p>
-    <div class="timer"></div>
-    <div><button class="btn-start" onclick="restartGame()">😀</button></div>
-    
+    <div class="lvl-select">
+        <p class="lvl-select-title">Choose Your's Level:</p>
+        <button class="btn-lvl glow-on-hover" id='Easy' onclick="onClickLvlSelect(id)">Easy (16)</button>
+        <button class="btn-lvl glow-on-hover" id='Hard' onclick="onClickLvlSelect(id)">Hard (25)</button>
+        <button class="btn-lvl glow-on-hover" id='Extreme' onclick="onClickLvlSelect(id)">Extreme (36)</button>
+    </div>
+    <div class="game-panel glow-on-hover">
+        <span class="counter">counter</span>
+        <button class="btn-start" onclick="restartGame()">😀</button>
+        <span class="timer">timer</span>
+    </div>
+    <div class="life-panel glow-on-hover">
+        ❤ ❤ ❤
+    </div>
+
 
     <table border="1" cellpadding="10">
         <tbody class="board"></tbody>
     </table>
 
 
-    <script src="js/utils.js"></script>
+    <script src="js/util.js"></script>
     <script src="js/main.js"></script>
 </body>
 

@@ -12,7 +12,10 @@ const gCell = {
 
 const gLevel = {
     SIZE: 4,
-    MINES: 2
+    MINES: 2,
+    LEVEL: 'easy',
+    // UNIQUE_ROW_IDXS: getArr(),
+    // UNIQUE_COL_IDXS: getArr()
 }
 
 const gGame = {
@@ -24,13 +27,12 @@ const gGame = {
 }
 var gTimerInterval
 
-const MINE_IMG = '<img src="images/mine2.png" alt="mine">'
+const MINE_IMG = '<img src="images/mine.png" alt="mine">'
 const MARKED_IMG = '<img src="images/marked.png" alt="marked">'
 
 
 //This is called when page loads
 function initGame() {
-    gGame.isOn = true
     gBoard = buildBoard()
     setMinesNegsCount(gBoard)
     renderBoard(gBoard)
@@ -48,6 +50,9 @@ function buildBoard() {
             }
         }
     }
+    // for (var i = 0; i < gLevel.MINES; i++) {
+    //     getRandUniqueLoc()
+    // }
     board[0][0].isMine = true
     board[2][2].isMine = true //Place 2 mines manually
     console.log(`board:`, board)
@@ -78,7 +83,7 @@ function renderBoard(board) {
             var currCellClass = getClassName({ i: i, j: j }) //cell-0-0
             currCellClass += (currCell.isMine) ? ' mine"' : ` number ${currCell.minesAroundCount}"`
 
-            strHTML += '\t<td class="cell ' + currCellClass + ' onclick="cellClicked(' + 'this' + ',' + i + ',' + j + ')" oncontextmenu="cellMarked(' + 'event,' + 'this' + ',' + i + ',' + j + ')">\n'
+            strHTML += '\t<td class="cell cell-' + gLevel.LEVEL + ' ' + currCellClass + ' onclick="cellClicked(' + 'this' + ',' + i + ',' + j + ')" oncontextmenu="cellMarked(' + 'event,' + 'this' + ',' + i + ',' + j + ')">\n'
 
             strHTML += '\t</td>\n'
         }
@@ -96,7 +101,11 @@ function renderCell(elCell, cellContentImg = "") {
 //Called when a cell (td) is clicked
 function cellClicked(elCell, i, j) {
     //start timer with 1st click
-    if (gGame.isFirstClick) setTimer()
+    if (gGame.isFirstClick) {
+        gGame.isOn = true
+        setTimer()
+    }
+    if (!gGame.isOn) return
 
     const currCell = gBoard[i][j]
     if (currCell.isMarked) return null
@@ -132,8 +141,9 @@ function revealAllMines() {
 
 //Called on right click to mark a cell
 function cellMarked(ev, elCell, i, j) {
-    var currCell = gBoard[i][j]
     ev.preventDefault()
+    if (!gGame.isOn) return
+    var currCell = gBoard[i][j]
     if (currCell.isShown) return
     console.log(`currCell.isShown:`, currCell.isShown)
     console.log(`elCell:`, elCell)
@@ -153,13 +163,18 @@ function cellMarked(ev, elCell, i, j) {
 
 }
 function gameOver() {
+    clearInterval(gTimerInterval)
+    console.log(`123:`)
     gGame.isOn = false
+    document.querySelector('.btn-start').innerText = '🤯'
     //todo
 }
 
 function restartGame() {
     gGame.isFirstClick = true
     gGame.isOn = true
+    document.querySelector('.btn-start').innerText = '😀'
+
     clearInterval(gGame.timerInterval)
 
     initGame()
@@ -167,14 +182,47 @@ function restartGame() {
 
 }
 
+function onClickLvlSelect(lvlId) {
+    clearInterval(gGame.timerInterval)
+    const elCells = document.querySelectorAll('.cell')
+
+    switch (lvlId) {
+        case 'Easy':
+            gLevel.SIZE = 16 ** 0.5
+            gLevel.LEVEL = 'easy'
+            break;
+        case 'Hard':
+            gLevel.SIZE = 25 ** 0.5
+            gLevel.LEVEL = 'hard'
+            break;
+        case 'Extreme':
+            gLevel.SIZE = 36 ** 0.5
+            gLevel.LEVEL = 'extreme'
+            break;
+
+        default:
+            break;
+    }
+    initGame()
+
+}
+
 function setTimer() {
     gGame.isFirstClick = false
+    const elTimer = document.querySelector('.timer')
+    showElemet(elTimer)
+    console.log(`elTimer:`, elTimer)
     gTimerInterval = setInterval(startTimer, 1000)
+
+
+
     return
     //todo
 }
 function startTimer() {
-
+    gGame.secsPassed++
+    document.querySelector(".timer").innerHTML = gGame.secsPassed;
+    console.log(`document.querySelector(".timer"):`, document.querySelector(".timer"))
 }
 
 
