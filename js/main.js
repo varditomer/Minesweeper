@@ -210,7 +210,17 @@ function restartGame() {
     initGame()
 }
 
-function onClickLvlSelect(lvlId) {
+function onClickLvlSelect(elBtn, lvlId) {
+    const elBtns = document.querySelectorAll('.btn-lvl')
+    console.log(`elBtns:`, elBtns)
+    for (var i = 0; i < elBtns.length; i++) {
+        var currBtn = elBtns[i]
+        if (currBtn.classList.contains('marked-lvl')) currBtn.classList.remove('marked-lvl')
+        console.log(`currBtn:`, currBtn)
+    }
+    elBtn.classList.add('marked-lvl')
+    console.log(`elBtn:`, elBtn)
+
     switch (lvlId) {
         case 'Beginner':
             gLevel.SIZE = 16 ** 0.5
@@ -316,8 +326,6 @@ function getEmptyPos(board) {
     emptyPos.j = +getRandomIntInclusive(0, gLevel.SIZE - 1)
 
     while (board[emptyPos.i][emptyPos.j].isMine) {
-        console.log(board[emptyPos.i][emptyPos.j].type)
-        console.log(board[emptyPos.i][emptyPos.j].gameElement)
         emptyPos.i = getRandomIntInclusive(0, gLevel.SIZE - 1)
         emptyPos.j = getRandomIntInclusive(0, gLevel.SIZE - 1)
     }
@@ -330,7 +338,7 @@ function renderElLife(lifes) {
     elLife.innerText = currLifes
 }
 
-function onHintClick(elHint) {
+function onHintClick() {
     if (gGame.isHintOn) return
     gGame.isHintOn = true
 }
