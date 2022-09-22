@@ -13,27 +13,30 @@ const gCell = {
 const gLevel = {
     SIZE: 4,
     MINES: 2,
-    LEVEL: 'easy',
-    // UNIQUE_ROW_IDXS: getArr(),
-    // UNIQUE_COL_IDXS: getArr()
+    LEVEL: 'beginner'
 }
 
-const gGame = {
-    isOn: false,
-    shownCount: 0,
-    markedCount: 0,
-    secsPassed: 0,
-    isFirstClick: true,
-    lifes: 3,
-}
+var gGame
 var gTimerInterval
 
 const MINE_IMG = '<img src="images/mine.png" alt="mine">'
 const MARKED_IMG = '<img src="images/marked.png" alt="marked">'
+const LIFE = '❤ '
 
 
 //This is called when page loads
 function initGame() {
+    gGame = {
+        isOn: false,
+        shownCount: 0,
+        markedCount: 0,
+        secsPassed: 0,
+        isFirstClick: true,
+        lifes: 3,
+        hints: 3,
+    }
+    updateCounter()
+    renderElLife(gGame.lifes)
     gBoard = buildBoard()
     setMinesNegsCount(gBoard)
     renderBoard(gBoard)
@@ -62,7 +65,6 @@ function insertMines(board) {
 
     for (var i = 0; i < gLevel.MINES; i++) {
         currPos = getEmptyPos(board)
-        console.log(`curPos:`, currPos)
         board[currPos.i][currPos.j].isMine = true
     }
 }
@@ -89,7 +91,7 @@ function renderBoard(board) {
         for (var j = 0; j < board[0].length; j++) {
             var currCell = board[i][j]
             var currCellClass = getClassName({ i: i, j: j }) //cell-0-0
-            currCellClass += (currCell.isMine) ? ' mine"' : ` number ${currCell.minesAroundCount}"`
+            currCellClass += (currCell.isMine) ? ' mine"' : ` number-${currCell.minesAroundCount}"`
 
             strHTML += '\t<td class="cell cell-' + gLevel.LEVEL + ' ' + currCellClass + ' onclick="cellClicked(' + 'this' + ',' + i + ',' + j + ')" oncontextmenu="cellMarked(' + 'event,' + 'this' + ',' + i + ',' + j + ')">\n'
 
@@ -97,7 +99,6 @@ function renderBoard(board) {
         }
         strHTML += '</tr>\n'
     }
-    console.log(`strHTML:`, strHTML)
     const elBoard = document.querySelector('.board')
     elBoard.innerHTML = strHTML
 }
@@ -118,17 +119,27 @@ function cellClicked(elCell, i, j) {
 
     //  update model
     currCell.isShown = true
+    gGame.shownCount++
+
 
     //  update DOM
     var cellContentImg
     if (currCell.isMine) {
         elCell.classList.add('mine-clicked')
         cellContentImg = MINE_IMG
-        revealAllMines()
-        gameOver()
+        if (gGame.lifes) {
+            gGame.lifes--
+            renderElLife(gGame.lifes)
+        }
+        else {
+
+            renderElLife(0)
+            revealAllMines()
+            gameOver()
+        }
     } else {
-        elCell.style.backgroundColor = 'blue'
-        elCell.style.boxShadow = 'inset 0px 0px 25px 0px rgba(0,0,0,0.25)'
+        if (!currCell.minesAroundCount) expandShown(gBoard, elCell, i, j)
+        elCell.classList.add('cell-clicked')
         if (currCell.minesAroundCount) cellContentImg = currCell.minesAroundCount
     }
     renderCell(elCell, cellContentImg)
@@ -149,14 +160,22 @@ function cellMarked(ev, elCell, i, j) {
 
     // update DOM
     if (currCell.isMarked) {
+        gGame.markedCount++
         elCell.classList.add('marked')
         renderCell(elCell, MARKED_IMG)
     } else {
+        gGame.markedCount--
         elCell.classList.remove('marked')
         renderCell(elCell, "")
     }
+    updateCounter()
     isVictory()
 }
+
+function updateCounter() {
+    document.querySelector('.counter-box').innerText = gLevel.MINES - gGame.markedCount
+}
+
 
 function revealAllMines() {
     const mines = document.querySelectorAll('.mine')
@@ -191,17 +210,20 @@ function restartGame() {
 
 function onClickLvlSelect(lvlId) {
     switch (lvlId) {
-        case 'Easy':
+        case 'Beginner':
             gLevel.SIZE = 16 ** 0.5
-            gLevel.LEVEL = 'easy'
+            gLevel.MINES = 2
+            gLevel.LEVEL = 'beginner'
             break;
-        case 'Hard':
-            gLevel.SIZE = 25 ** 0.5
-            gLevel.LEVEL = 'hard'
+        case 'Medium':
+            gLevel.SIZE = 64 ** 0.5
+            gLevel.MINES = 14
+            gLevel.LEVEL = 'medium'
             break;
-        case 'Extreme':
-            gLevel.SIZE = 36 ** 0.5
-            gLevel.LEVEL = 'extreme'
+        case 'Expert':
+            gLevel.SIZE = 144 ** 0.5
+            gLevel.MINES = 32
+            gLevel.LEVEL = 'expert'
             break;
 
         default:
@@ -214,12 +236,28 @@ function onClickLvlSelect(lvlId) {
 
 
 
-// function expandShown(board, elCell, i, j) {
-// When user clicks a cell with no mines around, we need to open not only that cell, but also its neighbors. 
-// NOTE: start with a basic implementation that only opens the non-mine 1st degree neighbors 
-// BONUS: if you have the time later, try to work more like the real algorithm (see description at the Bonuses section below)
+function expandShown(board, elCell, IdxI, Idxj) {
 
-// }
+    for (var i = IdxI - 1; i <= IdxI + 1; i++) {
+        if (i < 0 || i >= board.length) continue
+        for (var j = Idxj - 1; j <= Idxj + 1; j++) {
+            if (j < 0 || j >= board[0].length) continue
+            if (i === IdxI && j === Idxj) continue
+
+            // Model:
+            board[i][j].isShown = true
+            // Dom:
+            var elCell = document.querySelector(`.cell-${i}-${j}`)
+            elCell.classList.add('cell-clicked')
+            if (!board[i][j].minesAroundCount) continue
+            renderCell(elCell, board[i][j].minesAroundCount)
+        }
+    }
+    // When user clicks a cell with no mines around, we need to open not only that cell, but also its neighbors. 
+    // NOTE: start with a basic implementation that only opens the non-mine 1st degree neighbors 
+    // BONUS: if you have the time later, try to work more like the real algorithm (see description at the Bonuses section below)
+
+}
 
 //check negs
 function countNegs(cellIdxI, cellIdxJ, board) {
@@ -235,20 +273,9 @@ function countNegs(cellIdxI, cellIdxJ, board) {
 }
 
 function isVictory() {
-    var numOfShown = 0
-    var numOfMarked = 0
-    for (var i = 0; i < gBoard.length; i++) {
-        for (var j = 0; j < gBoard[0].length; j++) {
-            var currCell = gBoard[i][j]
-            if (currCell.isShown) numOfShown++
-            else if (currCell.isMarked) numOfMarked++
+    if (gGame.markedCount > gLevel.MINES) return
+    if (gGame.shownCount + gGame.markedCount === gLevel.SIZE ** 2) setVictory()
 
-            if (numOfMarked > gLevel.MINES) return
-        }
-    }
-    console.log(`numOfShown:`, numOfShown)
-    console.log(`numOfMarked:`, numOfMarked)
-    if ((numOfShown + numOfMarked) === gLevel.SIZE ** 2 && numOfMarked === gLevel.MINES) setVictory()
 }
 
 function setVictory() {
@@ -282,6 +309,24 @@ function getEmptyPos(board) {
     }
     return emptyPos
 }
+
+function renderElLife(lifes) {
+    var elLife = document.querySelector('.life-panel')
+    const currLifes = LIFE.repeat(lifes)
+    elLife.innerText = currLifes
+}
+function renderElHint(hints) {
+    var elLife = document.querySelector('.life-panel')
+    const currLifes = LIFE.repeat(lifes)
+    elLife.innerText = currLifes
+}
+
+document.querySelector('.table-container').addEventListener(
+    'contextmenu',
+    (e) => {
+        e.preventDefault()
+    }, false
+)
 
 document.body.oncontextmenu = function (e) {
     return false

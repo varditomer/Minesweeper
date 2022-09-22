@@ -9,18 +9,21 @@
     <title>mineSweeper</title>
 </head>
 <header>
-    <h1>mineSweeper</h1>
+    <h1>minesweeper</h1>
 </header>
 
 <body onload="initGame()">
 
     <div class="lvl-select">
         <p class="lvl-select-title">Choose Your's Level:</p>
-        <button class="btn-lvl glow-on-hover" id='Easy' onclick="onClickLvlSelect(id)">Easy (16)</button>
-        <button class="btn-lvl glow-on-hover" id='Hard' onclick="onClickLvlSelect(id)">Hard (25)</button>
-        <button class="btn-lvl glow-on-hover" id='Extreme' onclick="onClickLvlSelect(id)">Extreme (36)</button>
+        <button class="btn-lvl glow-on-hover" id='Beginner' onclick="onClickLvlSelect(id)">Beginner</button>
+        <button class="btn-lvl glow-on-hover" id='Medium' onclick="onClickLvlSelect(id)">Medium</button>
+        <button class="btn-lvl glow-on-hover" id='Expert' onclick="onClickLvlSelect(id)">Expert</button>
     </div>
     <div class="panel-container">
+        <div class="hint-panel glow-on-hover">
+            💡 💡 💡
+        </div>
 
 
         <div class="life-panel glow-on-hover">
@@ -28,17 +31,18 @@
         </div>
     </div>
 
-
-    <table border="1" cellpadding="10">
-        <thead class="game-panel">
-            <!-- <div class="game-panel"> -->
-                <span class="counter">counter</span>
-                <button class="btn-start" onclick="restartGame()">😀</button>
-                <span class="timer">🧭</span>
-            <!-- </div> -->
-        </thead>
-        <tbody class="board"></tbody>
-    </table>
+    <div class="table-container">
+        <table border="1" cellpadding="10">
+            <th class="game-panel" colspan="100%">
+                <div class="game-panel-info">
+                    <span class="counter-box"></span>
+                    <button class="btn-start" onclick="restartGame()">😀</button>
+                    <span class="timer">🧭</span>
+                </div>
+            </th>
+            <tbody class="board"></tbody>
+        </table>
+    </div>
 
 
     <script src="js/util.js"></script>
