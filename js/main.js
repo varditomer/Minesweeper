@@ -22,6 +22,7 @@ var gTimerInterval
 const MINE_IMG = '<img src="images/mine.png" alt="mine">'
 const MARKED_IMG = '<img src="images/marked.png" alt="marked">'
 const LIFE = '❤ '
+const HINT = '💡 '
 
 
 //This is called when page loads
@@ -34,9 +35,11 @@ function initGame() {
         isFirstClick: true,
         lifes: 3,
         hints: 3,
+        isHintOn: false
     }
     updateCounter()
     renderElLife(gGame.lifes)
+    renderElHint(gGame.hints)
     gBoard = buildBoard()
     setMinesNegsCount(gBoard)
     renderBoard(gBoard)
@@ -110,7 +113,7 @@ function renderCell(elCell, cellContentImg = "") {
 //Called when a cell (td) is clicked
 function cellClicked(elCell, i, j) {
     //start timer with 1st click
-    if (gGame.isFirstClick) hendleGameStart()
+    if (gGame.isFirstClick) handleGameStart()
     if (!gGame.isOn) return
 
     const currCell = gBoard[i][j]
@@ -119,6 +122,7 @@ function cellClicked(elCell, i, j) {
 
     //  update model
     currCell.isShown = true
+    if (gGame.isHintOn) return handleHint(elCell, currCell, i, j)
     gGame.shownCount++
 
 
@@ -127,13 +131,11 @@ function cellClicked(elCell, i, j) {
     if (currCell.isMine) {
         elCell.classList.add('mine-clicked')
         cellContentImg = MINE_IMG
-        if (gGame.lifes) {
-            gGame.lifes--
-            renderElLife(gGame.lifes)
-        }
-        else {
-
-            renderElLife(0)
+        console.log(`gGame.lifes:`, gGame.lifes)
+        gGame.lifes--
+        renderElLife(gGame.lifes)
+        if (!gGame.lifes) {
+            hideElemet(document.querySelector('.life-panel'))
             revealAllMines()
             gameOver()
         }
@@ -148,12 +150,12 @@ function cellClicked(elCell, i, j) {
 
 //Called on right click to mark a cell
 function cellMarked(ev, elCell, i, j) {
-    if (gGame.isFirstClick) hendleGameStart()
+    if (gGame.isFirstClick) handleGameStart()
     ev.preventDefault()
     if (!gGame.isOn) return
 
     var currCell = gBoard[i][j]
-    if (currCell.isShown) return
+    if (currCell.isShown && !currCell.isMine) return
 
     // update model: mark <=> unmark cell
     currCell.isMarked = !currCell.isMarked
@@ -185,13 +187,12 @@ function revealAllMines() {
     }
 }
 
-function hendleGameStart() {
+function handleGameStart() {
     if (!gGame.isFirstClick) return
     gGame.isFirstClick = false
     gGame.isOn = true
     setTimer()
 }
-
 
 function gameOver() {
     clearInterval(gTimerInterval)
@@ -205,6 +206,7 @@ function restartGame() {
     document.querySelector('.btn-start').innerText = '😀'
     clearInterval(gTimerInterval)
     document.querySelector(".timer").innerHTML = '🧭'
+    showElemet(document.querySelector('.life-panel'))
     initGame()
 }
 
@@ -232,32 +234,45 @@ function onClickLvlSelect(lvlId) {
     initGame()
 }
 
-
-
-
-
 function expandShown(board, elCell, IdxI, Idxj) {
-
     for (var i = IdxI - 1; i <= IdxI + 1; i++) {
         if (i < 0 || i >= board.length) continue
         for (var j = Idxj - 1; j <= Idxj + 1; j++) {
             if (j < 0 || j >= board[0].length) continue
             if (i === IdxI && j === Idxj) continue
-
             // Model:
+            if (!gGame.isHintOn && board[i][j].isShown) gGame.shownCount++
             board[i][j].isShown = true
+            console.log(`gGame.shownCount:`, gGame.shownCount)
             // Dom:
             var elCell = document.querySelector(`.cell-${i}-${j}`)
             elCell.classList.add('cell-clicked')
+            if (board[i][j].isMine) {
+                renderCell(elCell, MINE_IMG)
+                continue
+            }
             if (!board[i][j].minesAroundCount) continue
             renderCell(elCell, board[i][j].minesAroundCount)
         }
     }
-    // When user clicks a cell with no mines around, we need to open not only that cell, but also its neighbors. 
-    // NOTE: start with a basic implementation that only opens the non-mine 1st degree neighbors 
-    // BONUS: if you have the time later, try to work more like the real algorithm (see description at the Bonuses section below)
-
 }
+
+function closedShown(board, elCell, IdxI, Idxj) {
+    for (var i = IdxI - 1; i <= IdxI + 1; i++) {
+        if (i < 0 || i >= board.length) continue
+        for (var j = Idxj - 1; j <= Idxj + 1; j++) {
+            if (j < 0 || j >= board[0].length) continue
+            // Model:
+            board[i][j].isShown = false
+            // Dom:
+            var elCell = document.querySelector(`.cell-${i}-${j}`)
+            elCell.classList.remove('cell-clicked')
+            renderCell(elCell, '')
+        }
+    }
+}
+
+
 
 //check negs
 function countNegs(cellIdxI, cellIdxJ, board) {
@@ -275,7 +290,6 @@ function countNegs(cellIdxI, cellIdxJ, board) {
 function isVictory() {
     if (gGame.markedCount > gLevel.MINES) return
     if (gGame.shownCount + gGame.markedCount === gLevel.SIZE ** 2) setVictory()
-
 }
 
 function setVictory() {
@@ -315,9 +329,33 @@ function renderElLife(lifes) {
     const currLifes = LIFE.repeat(lifes)
     elLife.innerText = currLifes
 }
+
+function onHintClick(elHint) {
+    if (gGame.isHintOn) return
+    gGame.isHintOn = true
+}
+
+function handleHint(elCell, currCell, i, j) {
+    elCell.classList.add('cell-clicked')
+    var cellContentImg
+    if (currCell.isMine) cellContentImg = MINE_IMG
+    else { cellContentImg = (currCell.minesAroundCount) ? currCell.minesAroundCount : "" }
+    renderCell(elCell, cellContentImg)
+    expandShown(gBoard, elCell, i, j)
+
+    setTimeout(function () {
+        closedShown(gBoard, elCell, i, j)
+        gGame.isHintOn = false
+        gGame.hints--
+        renderElHint(gGame.hints)
+    }, 2000);
+}
+
+
+
 function renderElHint(hints) {
-    var elLife = document.querySelector('.life-panel')
-    const currLifes = LIFE.repeat(lifes)
+    var elLife = document.querySelector('.hint-panel')
+    const currLifes = HINT.repeat(hints)
     elLife.innerText = currLifes
 }
 
