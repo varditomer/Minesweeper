@@ -38,8 +38,13 @@ function initGame() {
         isHintOn: false
     }
     updateCounter()
-    renderElLife(gGame.lifes)
-    renderElHint(gGame.hints)
+
+    // rendering life lines
+    const elLife = document.querySelector('.life-panel') 
+    renderLifeLine(gGame.lifes, elLife, LIFE)
+    const elHint = document.querySelector('.hint-panel')
+    renderLifeLine(gGame.hints,elHint, HINT)
+
     gBoard = buildBoard()
     setMinesNegsCount(gBoard)
     renderBoard(gBoard)
@@ -110,7 +115,7 @@ function renderCell(elCell, cellContentImg = "") {
     elCell.innerHTML = `<span>${cellContentImg}</span>`
 }
 
-//Called when a cell (td) is clicked
+//Called when a cell (td) is clicked - leftMouseClick
 function cellClicked(elCell, i, j) {
     //start timer with 1st click
     if (gGame.isFirstClick) handleGameStart()
@@ -123,19 +128,27 @@ function cellClicked(elCell, i, j) {
     //  update model
     currCell.isShown = true
     if (gGame.isHintOn) return handleHint(elCell, currCell, i, j)
+    console.log(`gGame.shownCountbefore:`, gGame.shownCount)
     gGame.shownCount++
+    console.log(`gGame.shownCountafte:`, gGame.shownCount)
 
 
     //  update DOM
     var cellContentImg
     if (currCell.isMine) {
+        // update model
         elCell.classList.add('mine-clicked')
         cellContentImg = MINE_IMG
-        console.log(`gGame.lifes:`, gGame.lifes)
         gGame.lifes--
-        renderElLife(gGame.lifes)
-        if (!gGame.lifes) {
-            hideElemet(document.querySelector('.life-panel'))
+
+        // update DOM
+        const elLife = document.querySelector('.life-panel')
+        renderLifeLine(gGame.lifes, elLife, LIFE)
+        // renderElLife(gGame.lifes)
+
+        if (!gGame.lifes) { //if no lifes left
+            console.log(`gGame.lifes:`, gGame.lifes)
+            hideElemet(elLife)
             revealAllMines()
             gameOver()
         }
@@ -195,7 +208,9 @@ function handleGameStart() {
 }
 
 function gameOver() {
+    console.log(`gTimerIntervalbeforecleare:`, gTimerInterval)
     clearInterval(gTimerInterval)
+    console.log(`gTimerIntervalafter:`, gTimerInterval)
     gGame.isOn = false
     document.querySelector('.btn-start').innerText = '🤯'
 }
@@ -249,14 +264,13 @@ function expandShown(board, elCell, IdxI, Idxj) {
         if (i < 0 || i >= board.length) continue
         for (var j = Idxj - 1; j <= Idxj + 1; j++) {
             if (j < 0 || j >= board[0].length) continue
-            if (i === IdxI && j === Idxj) continue
+            if (i === IdxI && j === Idxj) continue //if it's the clicked cell continue
+
             // Model:
-            if (!gGame.isHintOn && board[i][j].isShown) gGame.shownCount++
+            if (!gGame.isHintOn && !board[i][j].isShown) gGame.shownCount++
             board[i][j].isShown = true
-            console.log(`gGame.shownCount:`, gGame.shownCount)
             // Dom:
             var elCell = document.querySelector(`.cell-${i}-${j}`)
-            elCell.classList.add('cell-clicked')
             if (board[i][j].isMine) {
                 renderCell(elCell, MINE_IMG)
                 continue
@@ -282,9 +296,6 @@ function closedShown(board, elCell, IdxI, Idxj) {
     }
 }
 
-
-
-//check negs
 function countNegs(cellIdxI, cellIdxJ, board) {
     var negsCount = 0
     for (var i = cellIdxI - 1; i <= cellIdxI + 1; i++) {
@@ -319,24 +330,7 @@ function startTimer() {
     document.querySelector(".timer").innerHTML = gGame.secsPassed;
 }
 
-//get empty pos by trying rand poses
-function getEmptyPos(board) {
-    var emptyPos = { i: 0, j: 0 }
-    emptyPos.i = +getRandomIntInclusive(0, gLevel.SIZE - 1)
-    emptyPos.j = +getRandomIntInclusive(0, gLevel.SIZE - 1)
 
-    while (board[emptyPos.i][emptyPos.j].isMine) {
-        emptyPos.i = getRandomIntInclusive(0, gLevel.SIZE - 1)
-        emptyPos.j = getRandomIntInclusive(0, gLevel.SIZE - 1)
-    }
-    return emptyPos
-}
-
-function renderElLife(lifes) {
-    var elLife = document.querySelector('.life-panel')
-    const currLifes = LIFE.repeat(lifes)
-    elLife.innerText = currLifes
-}
 
 function onHintClick() {
     if (gGame.isHintOn) return
@@ -355,18 +349,34 @@ function handleHint(elCell, currCell, i, j) {
         closedShown(gBoard, elCell, i, j)
         gGame.isHintOn = false
         gGame.hints--
-        renderElHint(gGame.hints)
+        // update DOM
+        const elHint = document.querySelector('.hint-panel')
+        if (!gGame.hints) hideElemet(elHint)
+        else renderLifeLine(gGame.hints, elHint, HINT)
     }, 2000);
 }
 
-
-
-function renderElHint(hints) {
-    var elLife = document.querySelector('.hint-panel')
-    const currLifes = HINT.repeat(hints)
-    elLife.innerText = currLifes
+function renderLifeLine(lifeLinesLeft, elLifeLine, lifeLineStr) {
+    // updated DOM
+    const updatedLifeLineStr = lifeLineStr.repeat(lifeLinesLeft)
+    elLifeLine.innerText = updatedLifeLineStr
+    showElemet(elLifeLine)
 }
 
+//get empty pos by trying rand poses
+function getEmptyPos(board) {
+    var emptyPos = { i: 0, j: 0 }
+    emptyPos.i = +getRandomIntInclusive(0, gLevel.SIZE - 1)
+    emptyPos.j = +getRandomIntInclusive(0, gLevel.SIZE - 1)
+
+    while (board[emptyPos.i][emptyPos.j].isMine) {
+        emptyPos.i = getRandomIntInclusive(0, gLevel.SIZE - 1)
+        emptyPos.j = getRandomIntInclusive(0, gLevel.SIZE - 1)
+    }
+    return emptyPos
+}
+
+//disable the right mouse click contextmenu
 document.querySelector('.table-container').addEventListener(
     'contextmenu',
     (e) => {
