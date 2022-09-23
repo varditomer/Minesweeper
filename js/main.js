@@ -128,10 +128,7 @@ function cellClicked(elCell, i, j) {
     //  update model
     currCell.isShown = true
     if (gGame.isHintOn) return handleHint(elCell, currCell, i, j)
-    console.log(`gGame.shownCountbefore:`, gGame.shownCount)
     gGame.shownCount++
-    console.log(`gGame.shownCountafte:`, gGame.shownCount)
-
 
     //  update DOM
     var cellContentImg
@@ -265,6 +262,7 @@ function expandShown(board, elCell, IdxI, Idxj) {
         for (var j = Idxj - 1; j <= Idxj + 1; j++) {
             if (j < 0 || j >= board[0].length) continue
             if (i === IdxI && j === Idxj) continue //if it's the clicked cell continue
+            console.log(`j:`, j)
 
             // Model:
             if (!gGame.isHintOn && !board[i][j].isShown) gGame.shownCount++
@@ -274,9 +272,12 @@ function expandShown(board, elCell, IdxI, Idxj) {
             if (board[i][j].isMine) {
                 renderCell(elCell, MINE_IMG)
                 continue
+            } else {
+                if(board[i][j].minesAroundCount) renderCell(elCell, board[i][j].minesAroundCount)
+                else renderCell(elCell, '')
+                elCell.classList.add('cell-clicked')
             }
-            if (!board[i][j].minesAroundCount) continue
-            renderCell(elCell, board[i][j].minesAroundCount)
+            
         }
     }
 }
