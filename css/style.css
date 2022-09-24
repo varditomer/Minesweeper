@@ -200,6 +200,11 @@ input:checked+.slider:before {
     display: block;
 }
 
+.safe-cell{
+    background-color: green !important;
+}   
+
+
 
 .life-panel {
     cursor: not-allowed;

@@ -35,29 +35,29 @@
         <div class="safe-click-panel glow-on-hover-dark" onclick="onSafeClick()">
             <p>Safe-Click</p>
             <p class="safe-click-count">
-                <span> 3</span>
+                <span class="safe-clicks-left">👍 👍 👍 </span>
             </p>
         </div>
         <div class="mine-exterminator-panel glow-on-hover-dark" title="mine-exterminator">
             💣❌
         </div>
-        <div class="manually-create glow-on-hover-dark" onclick="onMegaHintClick()">
+        <div class="manually-create glow-on-hover-dark">
             <span>Manually-Create 💥</span>
         </div>
-        <div class="seven-boom glow-on-hover-dark" onclick="onMegaHintClick()">
+        <div class="undo-panel glow-on-hover-dark" title="Undo" onclick="onUndoClick()">
+            ⏪
+        </div>
+        <div class="seven-boom glow-on-hover-dark">
             <span>7-BOOM</span>
         </div>
     </div>
 
     <div class="life-lines-container-2">
-        <div class="undo-panel glow-on-hover-dark" title="Undo" onclick="onUndoClick()">
-            ⏪
-        </div>
 
-        <div class="hint-panel glow-on-hover-dark" onclick="onHintClick()">
+        <div class="hint-panel glow-on-hover-dark" onclick="onHintClick(this)">
             💡 💡 💡
         </div>
-        <div class="mega-hint-panel glow-on-hover-dark" onclick="onMegaHintClick()">
+        <div class="mega-hint-panel glow-on-hover-dark" onclick="onHintClick(this)">
             <span>Mega-Hint</span>
         </div>
         <div class="life-panel glow-on-hover-dark" title="Lifes-Left">

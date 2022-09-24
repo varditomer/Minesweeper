@@ -16,6 +16,7 @@ const gLevel = {
 }
 
 var gGame
+var gMegaHint
 var gTimerInterval
 
 // EMOJIS
@@ -30,19 +31,9 @@ const gEmojis = {
 const gLifeLinesEmojis = {
     LIFE: '❤ ',
     HINT: '💡 ',
-    // SAFE_CLICK: `${gGame.safeClicks}`
-
+    SAFE_CLICK: '👍 '
 }
 
-const gMegaHint = {
-    i1: 0,
-    j1: 0,
-    i2: 0,
-    j2: 0,
-    isFirstClick: true,
-    isOn: false,
-    isUsed: false
-}
 
 // In game elements images
 const MINE_IMG = '<img src="images/mine.png" alt="mine">'
@@ -61,14 +52,21 @@ function initGame() {
         safeClicks: 3,
         isHintOn: false,
         isDarkMode: true,
-
+    }
+    gMegaHint = {
+        i1: 0,
+        j1: 0,
+        i2: 0,
+        j2: 0,
+        isFirstClick: true,
+        isOn: false,
+        isUsed: false
     }
     updateCounter()
     // rendering life lines
-    const elLife = document.querySelector('.life-panel')
-    renderLifeLine(gGame.lifes, elLife, gLifeLinesEmojis.LIFE)
-    const elHint = document.querySelector('.hint-panel')
-    renderLifeLine(gGame.hints, elHint, gLifeLinesEmojis.HINT)
+    renderLifeLine(gGame.lifes, document.querySelector('.life-panel'), gLifeLinesEmojis.LIFE)
+    renderLifeLine(gGame.hints, document.querySelector('.hint-panel'), gLifeLinesEmojis.HINT)
+    renderLifeLine(gGame.hints, document.querySelector('.safe-clicks-left'), gLifeLinesEmojis.SAFE_CLICK)
 
     gBoard = buildBoard()
     renderBoard(gBoard)
@@ -110,8 +108,6 @@ function renderBoard(board) {
 }
 
 function renderCell(elCell, cellContentImg = "") {
-    console.log(`1115`)
-    console.log(`cellContentImg:`, cellContentImg)
     elCell.innerHTML = `<span>${cellContentImg}</span>`
 }
 
@@ -122,8 +118,8 @@ function cellClicked(elCell, i, j) {
     if (!gGame.isOn) return
 
     const currCell = gBoard[i][j]
-    if (currCell.isMarked) return handleUnauthorizedClick()
-    if (currCell.isShown) return handleUnauthorizedClick()
+    if (currCell.isMarked) return unauthorizedClick()
+    if (currCell.isShown) return unauthorizedClick()
 
     //  update model
     currCell.isShown = true
@@ -160,7 +156,7 @@ function cellMarked(ev, elCell, i, j) {
     if (!gGame.isOn) return
 
     var currCell = gBoard[i][j]
-    if (currCell.isShown) return handleUnauthorizedClick()
+    if (currCell.isShown) return unauthorizedClick()
 
     // update model: mark <=> unmark cell
     currCell.isMarked = !currCell.isMarked
@@ -179,7 +175,7 @@ function cellMarked(ev, elCell, i, j) {
     isVictory()
 }
 
-function handleUnauthorizedClick() {
+function unauthorizedClick() {
     document.querySelector('.btn-start').innerText = gEmojis.UNAUTHORIZED_CLICK
     setTimeout(function () {
         document.querySelector('.btn-start').innerText = gEmojis.START
@@ -192,6 +188,7 @@ function handleFirstClick(elCell, i, j, clickTypeStr) {
     gGame.isOn = true
     cursorToPointer(document.querySelector('.hint-panel'))
     cursorToPointer(document.querySelector('.mega-hint-panel'))
+    cursorToPointer(document.querySelector('.safe-click-panel'))
     const firstCell = { i: i, j: j }
     // update model:
     firstCell.minesAroundCount = 0
@@ -207,7 +204,6 @@ function handleFirstClick(elCell, i, j, clickTypeStr) {
         gGame.shownCount++
         // update DOM:
         elCell.classList.add('cell-clicked')
-        console.log(`111:`)
         renderCell(elCell, '')
     }
     elCell.classList.add('number-0')
@@ -233,7 +229,6 @@ function getEmptyPos(board, firstCell) {
     var emptyPos = { i: 0, j: 0 }
     emptyPos.i = +getRandomIntInclusive(0, gLevel.SIZE - 1)
     emptyPos.j = +getRandomIntInclusive(0, gLevel.SIZE - 1)
-    console.log(`firsCell:`, firstCell)
 
     while (board[emptyPos.i][emptyPos.j].isMine ||
         (emptyPos.i === firstCell.i && emptyPos.j === firstCell.j) ||
@@ -308,17 +303,6 @@ function onClickStart() {
     initGame()
 }
 
-function onClickDarkMode() {
-    gGame.isDarkMode = !gGame.isDarkMode
-    document.querySelector('.dark-mode-emoji').innerText = (gGame.isDarkMode) ? '🌗' : '🌞'
-    toggleDarkModeStyle()
-
-}
-
-function onSafeClick() {
-    return
-}
-
 // if not a mine cell has no mines around - show his 1st degree negs (and marked them)
 // also if hint was on - show cell's first degree negs
 function expandShown(board, elCell, IdxI1, Idxj1, IdxI2 = IdxI1, Idxj2 = Idxj1) {
@@ -330,7 +314,7 @@ function expandShown(board, elCell, IdxI1, Idxj1, IdxI2 = IdxI1, Idxj2 = Idxj1) 
             // if (i === IdxI1 && j === Idxj1) continue //if it's the clicked cell continue
 
             // update model: (don't update shownCount if hint is on)
-            if ((!gGame.isHintOn || !gMegaHint.isOn) && !board[i][j].isShown) {
+            if ((!gGame.isHintOn && !gMegaHint.isOn) && !board[i][j].isShown) {
                 gGame.shownCount++
                 if (board[i][j].isMarked) { //if not a mine cell was marked
                     board[i][j].isMarked = false
@@ -418,10 +402,52 @@ function onClickLvlSelect(elBtn, lvlId) {
     initGame()
 }
 
-function onHintClick() {
-    if (gGame.isHintOn) return
-    if (gGame.isFirstClick) return
-    gGame.isHintOn = true
+function onSafeClick() {
+    if (!gGame.isOn) return unauthorizedClick()
+    if (!gGame.safeClicks) return unauthorizedClick()
+    const safePos = getSafePos()
+    const elCell = document.querySelector((`.cell-${safePos.i}-${safePos.j}`))
+    if (gBoard[safePos.i][safePos.j].isMarked) renderCell(elCell, '')
+    elCell.classList.add('safe-cell')
+    elCell.innerText = '👍'
+    setTimeout(function () {
+        elCell.innerText = ''
+        elCell.classList.remove('safe-cell')
+        if (gBoard[safePos.i][safePos.j].isMarked) renderCell(elCell, MARKED_IMG)
+        gGame.safeClicks--
+        const elSafeClick = document.querySelector('.safe-clicks-left')
+        if (!gGame.safeClicks) cursorToNotAllowed(document.querySelector('.safe-click-panel'))
+
+        renderLifeLine(gGame.safeClicks, elSafeClick, gLifeLinesEmojis.SAFE_CLICK)
+    }, 2000);
+}
+
+function getSafePos() {
+    var safePos = { i: 0, j: 0 }
+    safePos.i = +getRandomIntInclusive(0, gLevel.SIZE - 1)
+    safePos.j = +getRandomIntInclusive(0, gLevel.SIZE - 1)
+
+    while (gBoard[safePos.i][safePos.j].isMine ||
+        gBoard[safePos.i][safePos.j].isShown) {
+        safePos.i = getRandomIntInclusive(0, gLevel.SIZE - 1)
+        safePos.j = getRandomIntInclusive(0, gLevel.SIZE - 1)
+    }
+    return safePos
+}
+
+
+
+function onHintClick(el) {
+    if (!gGame.isOn) return unauthorizedClick()
+    if (gGame.isHintOn) return unauthorizedClick()
+    if (gGame.isFirstClick) return unauthorizedClick()
+    console.log(`el.classList.contains('hint-panel'):`, el.classList.contains('hint-panel'))
+    if (el.classList.contains('hint-panel')) return gGame.isHintOn = true
+    else {
+        if (!gMegaHint.isFirstClick) return unauthorizedClick()
+        if (gMegaHint.isUsed) return unauthorizedClick()
+        gMegaHint.isOn = true
+    }
 }
 
 function handleHint(elCell, currCell, i, j) {
@@ -441,13 +467,6 @@ function handleHint(elCell, currCell, i, j) {
         if (!gGame.hints) hideElemet(elHint)
         else renderLifeLine(gGame.hints, elHint, gLifeLinesEmojis.HINT)
     }, 2000);
-}
-
-function onMegaHintClick() {
-    if (gGame.isHintOn) return handleUnauthorizedClick()
-    if (!gMegaHint.isFirstClick) return handleUnauthorizedClick()
-    if (gMegaHint.isUsed) return handleUnauthorizedClick()
-    gMegaHint.isOn = true
 }
 
 function handleMegaHint(elCell, currCell, i, j) {
@@ -475,6 +494,13 @@ function handleMegaHint(elCell, currCell, i, j) {
         // update DOM
         const elHint = document.querySelector('.mega-hint-panel')
     }, 2000);
+}
+
+function onClickDarkMode() {
+    gGame.isDarkMode = !gGame.isDarkMode
+    document.querySelector('.dark-mode-emoji').innerText = (gGame.isDarkMode) ? '🌗' : '🌞'
+    toggleDarkModeStyle()
+
 }
 
 function renderLifeLine(lifeLinesLeft, elLifeLine, lifeLineStr) {
