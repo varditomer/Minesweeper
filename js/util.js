@@ -1,12 +1,19 @@
 //show || hide element
 function showElemet(el) {
-    el.classList.remove('hide')
+    if(el.classList.contains('hide')) el.classList.remove('hide')
     el.classList.add('show')
 }
 
 function hideElemet(el) {
-    el.classList.remove('show')
+    if(el.classList.contains('show')) el.classList.remove('show')
     el.classList.add('hide')
+}
+
+function cursorToPointer(el) {
+    el.style.cursor = 'pointer'
+}
+function cursorToNotAllowed(el) {
+    el.style.cursor = 'not-allowed'
 }
 
 //create mat

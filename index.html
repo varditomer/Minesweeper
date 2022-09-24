@@ -8,37 +8,67 @@
     <link rel="stylesheet" href="css/style.css">
     <title>mineSweeper</title>
 </head>
-<header>
-    <h1>minesweeper</h1>
-</header>
 
 <body onload="initGame()">
+    <header>
+        <div class="dark-mode-panel glow-on-hover-dark" title="dark/light mode">
+            <span class="dark-mode-emoji">🌗</span>
+            <label class="switch">
+                <input type="checkbox" onclick="onClickDarkMode()">
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <h1>minesweeper</h1>
+    </header>
 
-    <div class="lvl-select">
+
+    <div class="lvl-select-panel">
         <p class="lvl-select-title">Choose Your's Level:</p>
-        <button class="btn-lvl glow-on-hover" id='Beginner' onclick="onClickLvlSelect(this, id)">Beginner</button>
-        <button class="btn-lvl glow-on-hover" id='Medium' onclick="onClickLvlSelect(this, id)">Medium</button>
-        <button class="btn-lvl glow-on-hover" id='Expert' onclick="onClickLvlSelect(this, id)">Expert</button>
+        <button class="btn-lvl glow-on-hover-dark" id='Beginner' onclick="onClickLvlSelect(this, id)">Beginner</button>
+        <button class="btn-lvl glow-on-hover-dark" id='Medium' onclick="onClickLvlSelect(this, id)">Medium</button>
+        <button class="btn-lvl glow-on-hover-dark" id='Expert' onclick="onClickLvlSelect(this, id)">Expert</button>
     </div>
-    <div class="panel-container">
-        <div class="hint-panel glow-on-hover" onclick="onHintClick()">
-            💡 💡 💡
+
+    <div class="life-lines-container-1">
+        <div class="safe-click-panel glow-on-hover-dark" onclick="onSafeClick()">
+            <p>Safe-Click</p>
+            <p class="safe-click-count">
+                <span> 3</span>
+            </p>
+        </div>
+        <div class="mine-exterminator-panel glow-on-hover-dark" title="mine-exterminator">
+            💣❌
+        </div>
+        <div class="manually-create glow-on-hover-dark" onclick="onMegaHintClick()">
+            <span>Manually-Create 💥</span>
+        </div>
+        <div class="seven-boom glow-on-hover-dark" onclick="onMegaHintClick()">
+            <span>7-BOOM</span>
+        </div>
+    </div>
+
+    <div class="life-lines-container-2">
+        <div class="undo-panel glow-on-hover-dark" title="Undo" onclick="onUndoClick()">
+            ⏪
         </div>
 
-
-        <div class="life-panel glow-on-hover">
+        <div class="hint-panel glow-on-hover-dark" onclick="onHintClick()">
+            💡 💡 💡
+        </div>
+        <div class="mega-hint-panel glow-on-hover-dark" onclick="onMegaHintClick()">
+            <span>Mega-Hint</span>
+        </div>
+        <div class="life-panel glow-on-hover-dark" title="Lifes-Left">
             ❤ ❤ ❤
         </div>
     </div>
 
     <div class="table-container">
         <table border="1" cellpadding="10">
-            <th class="game-panel" colspan="100%">
-                <div class="game-panel-info">
-                    <span class="counter-box"></span>
-                    <button class="btn-start" onclick="onClickStart()">😀</button>
-                    <span class="timer">🧭</span>
-                </div>
+            <th class="game-info-panel" colspan="100%">
+                <span class="counter-box"></span>
+                <button class="btn-start" onclick="onClickStart()">😀</button>
+                <span class="timer">🕓</span>
             </th>
             <tbody class="board"></tbody>
         </table>

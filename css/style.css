@@ -1,68 +1,312 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     background-color: rgb(49, 49, 49);
     color: white;
-    margin: auto;
     text-align: center;
 }
 
 h1 {
+    display: inline-block;
     font-family: monospace;
     text-decoration: underline;
     text-decoration-color: rgb(160, 160, 255);
-    font-size: 3.3rem;
+    font-size: 3rem;
     letter-spacing: 0.4rem;
     text-shadow: 0 0 0#002bff;
-    margin-bottom: 40px;
+}
+
+p {
+    margin: 0
+}
+
+.dark-mode-panel {
+    display: inline-flex;
+    position: absolute;
+    top: 0px;
+    left: -50px;
+    cursor: pointer;
+    align-items: center;
+    font-size: 1.7rem;
+    padding: 10px;
+}
+
+.dark-mode-emoji{
+    justify-content: center;
+    text-align: center;
 }
 
 
-.lvl-select {
-    margin: 30px auto;
+/* 
+========================
+  Dark mode slider
+========================
+*/
+
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked+.slider {
+    background-color: #2196F3;
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked+.slider:before {
+    -webkit-transform: translateX(20px);
+    -ms-transform: translateX(20px);
+    transform: translateX(20px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* 
+========================
+  LEVEL SELECT
+========================
+*/
+
+.lvl-select-panel {
+    margin: 10px auto;
+    justify-content: center;
 }
 
 .lvl-select-title {
+    display: block;
     font-family: 'Open Sans', sans-serif;
     font-size: 16px;
     font-weight: 300;
     text-align: center;
-    font-size: 1.375rem;
-
+    font-size: 1.175rem;
+    margin-bottom: 8px;
 }
 
 .btn-lvl {
     cursor: pointer;
-    color: #fff;
-    font-size: 1.375rem;
+    font-size: 1.275rem;
+    margin: 5px;
+    color: white;
+    padding: 10px;
+
 }
 
+/* 
+========================
+  LIFE LINES
+========================
+*/
 
-
-.panel-container {
-    margin: 30px auto;
+.life-lines-container-1,
+.life-lines-container-2 {
     display: flex;
-    /* flex-direction: column; */
+    margin: 20px auto;
     justify-content: center;
-    align-items: center;
+    flex-wrap: wrap;
 }
 
+.safe-click-panel,
+.mine-exterminator-panel,
+.undo-panel,
+.mega-hint-panel,
+.hint-panel,
 .life-panel,
-.hint-panel {
-    display: inline;
+.seven-boom,
+.manually-create {
+    display: inline-flex;
     margin: 0px 10px;
     align-items: center;
     justify-content: center;
     padding: 5px 15px;
     border: 2px solid gray;
-    color: red;
-    font-size: 1.575rem;
-
+    /* color: red; */
+    font-size: 1.275rem;
+    cursor: not-allowed;
+    text-align: center;
 }
 
+.undo-panel,
+.mega-hint-panel,
+.hint-panel,
+.life-panel {
+    padding: 8px;
+}
+
+
+.safe-click-panel {
+    flex-direction: column;
+}
+
+.safe-click-count {
+    display: block;
+}
+
+.mega-hint-panel,
 .hint-panel {
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 
+.life-panel {
+    cursor: not-allowed;
+    color: red;
+}
 
+/* 
+========================
+  TABLE
+========================
+*/
+
+.table-container {
+    display: flex;
+}
+
+table {
+    margin: 20px auto;
+    background-color: #bdbdbd;
+    border-spacing: 0.3px;
+    border: 0.6px solid rgb(160, 160, 255)
+}
+
+.game-info-panel {
+    padding: 5px;
+    line-height: 2;
+    font-size: 1.18rem;
+    font-weight: bold;
+    /* background-position: 0 -84px; */
+    border: 1.5px solid rgb(160, 160, 255);
+    border-bottom: 2px solid rgb(160, 160, 255);
+    justify-content: center;
+    font-family: "digital-7";
+
+}
+
+.counter-box {}
+
+.btn-start {
+    cursor: pointer;
+    margin: 0 60px;
+    /* background-color: #c0c0c0; */
+    font-size: 1rem;
+
+}
+
+.timer {
+    font-weight: bold;
+    font-size: 1.1875rem;
+    right: 0;
+    color: red;
+
+}
+
+.cell {
+    text-align: center;
+    background-color: rgba(147, 154, 166, 0.654);
+    cursor: pointer;
+    font-weight: 700;
+    border-color: rgb(41, 37, 37);
+    border-left: 1.5px solid #e3dbdb;
+    border-top: 1.5px solid #ddcfcf;
+    box-shadow: inset 0 0 2px 3px #b2afaf;
+    padding: 5px;
+}
+
+.cell-clicked {
+    background-color: #b5aeae;
+    border: 1.5px solid rgba(81, 80, 80, 0.668);
+}
+
+.cell-beginner {
+    height: 70px;
+    width: 70px;
+    font-size: 1.1875rem;
+}
+
+.cell-medium {
+    height: 40px;
+    width: 40px;
+    font-size: 1.1875rem;
+}
+
+.cell-expert {
+    height: 40px;
+    width: 40px;
+}
+
+.cell img {
+    width: 80%;
+    height: auto;
+}
+
+/* 
+========================
+  In Game Coloring
+========================
+*/
+
+.marked {
+    background-color: rgb(71, 70, 70);
+    box-shadow: unset;
+}
+
+.mine-clicked {
+    background-color: rgb(243, 75, 75);
+    border: 1.5px solid rgb(58, 57, 57);
+    box-shadow: unset
+}
+
+/* 
+========================
+  Cell Numbers Coloring
+========================
+*/
 
 .number-1 {
     color: blue;
@@ -96,109 +340,20 @@ h1 {
     color: gray;
 }
 
-.game-panel {
-    padding: 5px;
-    border: 2px solid gray;
-    line-height: 2;
-}
-
-
-.counter-box {
-    font-size: 1.1875rem;
-}
-
-.btn-start {
-    cursor: pointer;
-    box-shadow: rgb(245, 182, 182);
-    margin: 0 60px;
-}
-
-.timer {
-    font-weight: bold;
-    font-size: 1.1875rem;
-}
-
-.table-container {
-    display: flex;
-}
-
-table {
-    margin: 20px auto;
-    background-color: #c0c0c0;
-    border-spacing: 0.3px;
-    border: 0.3px solid rgb(160, 160, 255)
-}
-
-.cell {
-    text-align: center;
-    background-color: rgba(147, 154, 166, 0.654);
-    cursor: pointer;
-    font-weight: 700;
-    border-color: rgb(41, 37, 37);
-    border-left: 1.5px solid #e3dbdb;
-    border-top: 1.5px solid #ddcfcf;
-    box-shadow: inset 0 0 2px 3px #b2afaf;
-    padding: 5px;
-}
-
-.cell-clicked {
-    background-color: #b5aeae;
-    border: 1.5px solid rgba(81, 80, 80, 0.668);
-}
-
-
-.cell-beginner {
-    height: 70px;
-    width: 70px;
-    font-size: 1.1875rem;
-}
-
-.cell-medium {
-    height: 35px;
-    width: 35px;
-    font-size: 1.1875rem;
-}
-
-.cell-expert {
-    height: 25px;
-    width: 25px;
-}
-
-.cell img {
-    width: 90%;
-    height: auto;
-}
-
-.marked {
-    background-color: rgb(71, 70, 70);
-    box-shadow: unset;
-}
-
-.mine-clicked {
-    background-color: rgb(243, 75, 75);
-    border: 1.5px solid rgb(58, 57, 57);
-    box-shadow: unset
-}
-
 /* 
 ========================
-  GLOW BTN.
+  GLOW BTN. Dark-Mode
 ========================
 */
 
-.glow-on-hover {
-    padding: 10px;
-    border: none;
-    outline: none;
-    background: #111;
+.glow-on-hover-dark {
     position: relative;
     z-index: 0;
     border-radius: 10px;
-    margin: 5px;
     border: 0.01em solid rgb(160, 160, 255);
 }
 
-.glow-on-hover:before {
+.glow-on-hover-dark:before {
     content: '';
     background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
     position: absolute;
@@ -215,19 +370,19 @@ table {
     border-radius: 10px;
 }
 
-.glow-on-hover:active {
+.glow-on-hover-dark:active {
     color: #000
 }
 
-.glow-on-hover:active:after {
+.glow-on-hover-dark:active:after {
     background: transparent;
 }
 
-.glow-on-hover:hover:before {
+.glow-on-hover-dark:hover:before {
     opacity: 1;
 }
 
-.glow-on-hover:after {
+.glow-on-hover-dark:after {
     z-index: -1;
     content: '';
     position: absolute;
@@ -253,11 +408,84 @@ table {
     }
 }
 
-.marked-lvl{
-    border: 0.1em solid red;
+/* 
+========================
+  GLOW BTN. Light-Mode
+========================
+*/
+
+.glow-on-hover-light {
+    position: relative;
+    z-index: 0;
+    border-radius: 10px;
+    border: 0.01em solid rgb(160, 160, 255);
+}
+
+.glow-on-hover-light:before {
+    content: '';
+    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    background-size: 400%;
+    z-index: -1;
+    filter: blur(5px);
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    animation: glowing 20s linear infinite;
+    opacity: 0;
+    transition: opacity .3s ease-in-out;
+    border-radius: 10px;
+}
+
+.glow-on-hover-light:active {
+    color: #000
+}
+
+.glow-on-hover-light:active:after {
+    background: transparent;
+}
+
+.glow-on-hover-light:hover:before {
+    opacity: 1;
+}
+
+.glow-on-hover-light:after {
+    z-index: -1;
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgb(234, 233, 233);
+    left: 0;
+    top: 0;
+    border-radius: 10px;
+}
+
+@keyframes glowing {
+    0% {
+        background-position: 0 0;
+    }
+
+    50% {
+        background-position: 400% 0;
+    }
+
+    100% {
+        background-position: 0 0;
+    }
 }
 
 
+/* 
+======================================
+  EXTRA SETTINGS BESIDES GLOW-ON-HOVER
+======================================
+*/
+
+.marked-lvl {
+    border: 0.1em solid red;
+}
 
 /* 
 ========================
@@ -266,9 +494,10 @@ table {
 */
 
 .show {
-    display: block;
+    display: inline-block;
 }
 
 .hide {
     visibility: hidden;
 }
+
