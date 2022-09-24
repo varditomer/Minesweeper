@@ -34,6 +34,16 @@ const gLifeLinesEmojis = {
 
 }
 
+const gMegaHint = {
+    i1: 0,
+    j1: 0,
+    i2: 0,
+    j2: 0,
+    isFirstClick: true,
+    isOn: false,
+    isUsed: false
+}
+
 // In game elements images
 const MINE_IMG = '<img src="images/mine.png" alt="mine">'
 const MARKED_IMG = '<img src="images/marked.png" alt="marked">'
@@ -50,7 +60,8 @@ function initGame() {
         hints: 3,
         safeClicks: 3,
         isHintOn: false,
-        isDarkMode: true
+        isDarkMode: true,
+
     }
     updateCounter()
     // rendering life lines
@@ -117,6 +128,7 @@ function cellClicked(elCell, i, j) {
     //  update model
     currCell.isShown = true
     if (gGame.isHintOn) return handleHint(elCell, currCell, i, j)
+    if (gMegaHint.isOn) return handleMegaHint(elCell, currCell, i, j)
     gGame.shownCount++
 
     //  update DOM
@@ -309,15 +321,16 @@ function onSafeClick() {
 
 // if not a mine cell has no mines around - show his 1st degree negs (and marked them)
 // also if hint was on - show cell's first degree negs
-function expandShown(board, elCell, IdxI, Idxj) {
-    for (var i = IdxI - 1; i <= IdxI + 1; i++) {
+function expandShown(board, elCell, IdxI1, Idxj1, IdxI2 = IdxI1, Idxj2 = Idxj1) {
+    for (var i = IdxI1 - 1; i <= IdxI2 + 1; i++) {
         if (i < 0 || i >= board.length) continue
-        for (var j = Idxj - 1; j <= Idxj + 1; j++) {
+        for (var j = Idxj1 - 1; j <= Idxj2 + 1; j++) {
             if (j < 0 || j >= board[0].length) continue
-            if (i === IdxI && j === Idxj) continue //if it's the clicked cell continue
+            if (!gMegaHint.isOn && (i === IdxI1 && j === Idxj1)) continue
+            // if (i === IdxI1 && j === Idxj1) continue //if it's the clicked cell continue
 
             // update model: (don't update shownCount if hint is on)
-            if (!gGame.isHintOn && !board[i][j].isShown) {
+            if ((!gGame.isHintOn || !gMegaHint.isOn) && !board[i][j].isShown) {
                 gGame.shownCount++
                 if (board[i][j].isMarked) { //if not a mine cell was marked
                     board[i][j].isMarked = false
@@ -345,10 +358,10 @@ function expandShown(board, elCell, IdxI, Idxj) {
     }
 }
 
-function closedShown(board, elCell, IdxI, Idxj) {
-    for (var i = IdxI - 1; i <= IdxI + 1; i++) {
+function closedShown(board, elCell, IdxI1, Idxj1, IdxI2 = IdxI1, Idxj2 = Idxj1) {
+    for (var i = IdxI1 - 1; i <= IdxI2 + 1; i++) {
         if (i < 0 || i >= board.length) continue
-        for (var j = Idxj - 1; j <= Idxj + 1; j++) {
+        for (var j = Idxj1 - 1; j <= Idxj2 + 1; j++) {
             if (j < 0 || j >= board[0].length) continue
             // Model:
             board[i][j].isShown = false
@@ -427,6 +440,40 @@ function handleHint(elCell, currCell, i, j) {
         const elHint = document.querySelector('.hint-panel')
         if (!gGame.hints) hideElemet(elHint)
         else renderLifeLine(gGame.hints, elHint, gLifeLinesEmojis.HINT)
+    }, 2000);
+}
+
+function onMegaHintClick() {
+    if (gGame.isHintOn) return handleUnauthorizedClick()
+    if (!gMegaHint.isFirstClick) return handleUnauthorizedClick()
+    if (gMegaHint.isUsed) return handleUnauthorizedClick()
+    gMegaHint.isOn = true
+}
+
+function handleMegaHint(elCell, currCell, i, j) {
+    elCell.classList.add('cell-clicked')
+    var cellContentImg
+    if (currCell.isMine) cellContentImg = MINE_IMG
+    else { cellContentImg = (currCell.minesAroundCount) ? currCell.minesAroundCount : "" }
+    renderCell(elCell, cellContentImg)
+
+    if (gMegaHint.isFirstClick) {
+        gMegaHint.i1 = i
+        gMegaHint.j1 = j
+        gMegaHint.isFirstClick = false
+        return
+    }
+    gMegaHint.i2 = i
+    gMegaHint.j2 = j
+
+    expandShown(gBoard, elCell, gMegaHint.i1 + 1, gMegaHint.j1 + 1, gMegaHint.i2 - 1, gMegaHint.j2 - 1)
+    setTimeout(function () {
+        closedShown(gBoard, elCell, gMegaHint.i1 + 1, gMegaHint.j1 + 1, gMegaHint.i2 - 1, gMegaHint.j2 - 1)
+        gMegaHint.isOn = false
+        gMegaHint.isUsed = true
+
+        // update DOM
+        const elHint = document.querySelector('.mega-hint-panel')
     }, 2000);
 }
 

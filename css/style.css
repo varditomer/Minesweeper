@@ -8,6 +8,18 @@ body {
     text-align: center;
 }
 
+header {
+    display: flex;
+}
+
+.title-box {
+    display: flex;
+    text-align: center;
+    position: relative;
+    justify-content: center;
+    margin: auto;
+}
+
 h1 {
     display: inline-block;
     font-family: monospace;
@@ -23,17 +35,17 @@ p {
 }
 
 .dark-mode-panel {
-    display: inline-flex;
-    position: absolute;
-    top: 0px;
-    left: -50px;
+    display: inline;
+    position: absolute !important;
+    top: 20%;
+    left: -40%;
     cursor: pointer;
     align-items: center;
     font-size: 1.7rem;
     padding: 10px;
 }
 
-.dark-mode-emoji{
+.dark-mode-emoji {
     justify-content: center;
     text-align: center;
 }
@@ -147,9 +159,10 @@ input:checked+.slider:before {
 .life-lines-container-1,
 .life-lines-container-2 {
     display: flex;
-    margin: 20px auto;
+    margin-bottom: 20px;
     justify-content: center;
     flex-wrap: wrap;
+    gap: 15px;
 }
 
 .safe-click-panel,
@@ -161,7 +174,6 @@ input:checked+.slider:before {
 .seven-boom,
 .manually-create {
     display: inline-flex;
-    margin: 0px 10px;
     align-items: center;
     justify-content: center;
     padding: 5px 15px;
@@ -188,10 +200,6 @@ input:checked+.slider:before {
     display: block;
 }
 
-.mega-hint-panel,
-.hint-panel {
-    /* cursor: pointer; */
-}
 
 .life-panel {
     cursor: not-allowed;
@@ -227,8 +235,6 @@ table {
     font-family: "digital-7";
 
 }
-
-.counter-box {}
 
 .btn-start {
     cursor: pointer;
@@ -500,4 +506,3 @@ table {
 .hide {
     visibility: hidden;
 }
-
