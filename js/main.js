@@ -346,7 +346,7 @@ function expandShown(board, elCell, IdxI1, Idxj1, IdxI2 = IdxI1, Idxj2 = Idxj1) 
             var elCell = document.querySelector(`.cell-${i}-${j}`)
             elCell.classList.add('cell-clicked')
 
-            if (gGame.isHintOn && board[i][j].isMine) { //only relevant when hint is on:
+            if ((gGame.isHintOn || gMegaHint.isOn) && board[i][j].isMine) { //only relevant when hint is on:
                 renderCell(elCell, MINE_IMG)
                 continue
             } else {
