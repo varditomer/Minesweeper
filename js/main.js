@@ -52,6 +52,8 @@ function initGame() {
         safeClicks: 3,
         isHintOn: false,
         isDarkMode: true,
+        isMineExterminatorUsed: false,
+        minesPoses: []
     }
     gMegaHint = {
         i1: 0,
@@ -189,6 +191,7 @@ function handleFirstClick(elCell, i, j, clickTypeStr) {
     cursorToPointer(document.querySelector('.hint-panel'))
     cursorToPointer(document.querySelector('.mega-hint-panel'))
     cursorToPointer(document.querySelector('.safe-click-panel'))
+    cursorToPointer(document.querySelector('.mine-exterminator-panel'))
     const firstCell = { i: i, j: j }
     // update model:
     firstCell.minesAroundCount = 0
@@ -435,13 +438,56 @@ function getSafePos() {
     return safePos
 }
 
+function onMineExterminatorClick() {
+    if (!gGame.isOn) return unauthorizedClick()
+    if (gLevel.MINES <= 3) return unauthorizedClick()
+    console.log(`gBoard1:`, gBoard)
+    for (var i = 0; i < 3; i++) {
+        var currMinePose = getRandMinePos()
+        console.log(`currMinePose:`, currMinePose)
+        gBoard[currMinePose.i][currMinePose.j].isMine = false
+        gGame.MINES--
+        var elCurrMineCell = document.querySelector((`.cell-${currMinePose.i}-${currMinePose.j}`))
+        elCurrMineCell.classList.remove('mine')
+    }
+    console.log(`gGame.minesPoses:`, gGame.minesPoses)
+    console.log(`gBoard2:`, gBoard)
+    setMinesNegsCount(gBoard, { i: -1, j: -1 })
+    renderBoardAfterFirst(gBoard, { i: -1, j: -1 })
+    console.log(`gBoard3:`, gBoard)
+}
 
+function getRandMinePos() {
+    var currMinePose = { i: 0, j: 0 }
+    currMinePose.i = +getRandomIntInclusive(0, gLevel.SIZE - 1)
+    currMinePose.j = +getRandomIntInclusive(0, gLevel.SIZE - 1)
+    var isAlreadyExist = true
+
+    while (!gBoard[currMinePose.i][currMinePose.j].isMine && isAlreadyExist) {
+        currMinePose.i = getRandomIntInclusive(0, gLevel.SIZE - 1)
+        currMinePose.j = getRandomIntInclusive(0, gLevel.SIZE - 1)
+        if (!gGame.minesPoses.length && gBoard[currMinePose.i][currMinePose.j].isMine) {
+            console.log(`currMinePose1:`, currMinePose)
+            gGame.minesPoses.push(currMinePose)
+            return currMinePose
+        }
+        for (var i = 0; i < gGame.minesPoses.length; i++) {
+            if (gGame.minesPoses[i].i === currMinePose.i && gGame.minesPoses[i].j === currMinePose.j) continue
+            else {
+                console.log(`currMinePose2:`, currMinePose)
+                gGame.minesPoses.push(currMinePose)
+                return currMinePose
+            }
+        }
+        isAlreadyExist = true
+    }
+    console.log(`gGame.minesPoses123:`, gGame.minesPoses)
+}
 
 function onHintClick(el) {
     if (!gGame.isOn) return unauthorizedClick()
     if (gGame.isHintOn) return unauthorizedClick()
     if (gGame.isFirstClick) return unauthorizedClick()
-    console.log(`el.classList.contains('hint-panel'):`, el.classList.contains('hint-panel'))
     if (el.classList.contains('hint-panel')) return gGame.isHintOn = true
     else {
         if (!gMegaHint.isFirstClick) return unauthorizedClick()

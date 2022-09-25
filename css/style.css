@@ -191,6 +191,11 @@ input:checked+.slider:before {
     padding: 8px;
 }
 
+.mine-exterminator-img{
+    width: 40px;
+    height: 40px;
+}
+
 
 .safe-click-panel {
     flex-direction: column;
