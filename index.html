@@ -26,43 +26,53 @@
 
     <div class="lvl-select-panel">
         <p class="lvl-select-title">Choose Your's Level:</p>
+
         <button class="btn-lvl glow-on-hover-dark" id='Beginner' onclick="onClickLvlSelect(this, id)">Beginner</button>
         <button class="btn-lvl glow-on-hover-dark" id='Medium' onclick="onClickLvlSelect(this, id)">Medium</button>
         <button class="btn-lvl glow-on-hover-dark" id='Expert' onclick="onClickLvlSelect(this, id)">Expert</button>
+
     </div>
 
-    <div class="life-lines-container-1">
-        <div class="safe-click-panel glow-on-hover-dark" onclick="onSafeClick()">
-            <p>Safe-Click</p>
-            <p class="safe-click-count">
-                <span class="safe-clicks-left">👍 👍 👍 </span>
-            </p>
-        </div>
-        <div class="mine-exterminator-panel glow-on-hover-dark" title="mine-exterminator" onclick="onMineExterminatorClick()">
-            <img class="mine-exterminator-img" src="images/mine-extrminator.png" alt="mine-exterminator">
-        </div>
-        <div class="manually-create glow-on-hover-dark">
-            <span>Manually-Create 💥</span>
+    <div class="game-modes-container">
+        <!-- <p class="game-modes-title">Games Modes:</p> -->
+
+        <div class="manually-panel glow-on-hover-dark" onclick="onClickManually()">
+            <p class="manually-title">Manually</p>
+            <span class="manually">👇💣</span>
         </div>
 
-        <div class="seven-boom glow-on-hover-dark">
+        <div class="seven-boom glow-on-hover-dark" onclick="onClickSevenBoom()">
             <span>7-BOOM</span>
         </div>
+
     </div>
 
-    <div class="life-lines-container-2">
-        <div class="undo-panel glow-on-hover-dark" title="Undo" onclick="onUndoClick()">
-            ⏪
+    <div class="life-lines-container">
+        <!-- <p class="life-lines-title">life lines:</p> -->
+
+        <div class="life-panel glow-on-hover-dark" title="Lifes-Left">
+            <p class="life-title">Lifes</p>
+            <span class="lifes-left">❤ ❤ ❤</span>
+        </div>
+        <div class="safe-click-panel glow-on-hover-dark" onclick="onSafeClick()">
+            <p class="safe-click-title">Safe-Click</p>
+            <span class="safe-clicks-left">👍 👍 👍 </span>
         </div>
         <div class="hint-panel glow-on-hover-dark" onclick="onHintClick(this)">
-            💡 💡 💡
+            <p class="hint-title">Hints</p>
+            <span class="hints-left">💡 💡 💡</span>
         </div>
         <div class="mega-hint-panel glow-on-hover-dark" onclick="onHintClick(this)">
             <span>Mega-Hint</span>
         </div>
-        <div class="life-panel glow-on-hover-dark" title="Lifes-Left">
-            ❤ ❤ ❤
+        <div class="mine-exterminator-panel glow-on-hover-dark" title="mine-exterminator"
+            onclick="onMineExterminatorClick()">
+            <img class="mine-exterminator-img" src="images/mine-extrminator.png" alt="mine-exterminator">
         </div>
+        <!-- <div class="undo-panel glow-on-hover-dark" title="Undo" onclick="onUndoClick()">
+            ⏪
+        </div> -->
+
     </div>
 
     <div class="table-container">

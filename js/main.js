@@ -34,7 +34,6 @@ const gLifeLinesEmojis = {
     SAFE_CLICK: '👍 '
 }
 
-
 // In game elements images
 const MINE_IMG = '<img src="images/mine.png" alt="mine">'
 const MARKED_IMG = '<img src="images/marked.png" alt="marked">'
@@ -47,13 +46,14 @@ function initGame() {
         markedCount: 0,
         secsPassed: 0,
         isFirstClick: true,
-        lifes: 3,
-        hints: 3,
-        safeClicks: 3,
+        lifesCount: 3,
+        hintsCount: 3,
+        safeClicksCount: 3,
         isHintOn: false,
         isDarkMode: true,
         isMineExterminatorUsed: false,
-        minesPoses: []
+        minesPoses: [],
+        isSevenBoom: false
     }
     gMegaHint = {
         i1: 0,
@@ -64,11 +64,15 @@ function initGame() {
         isOn: false,
         isUsed: false
     }
+    document.querySelector('.btn-start').innerText = gEmojis.START
     updateCounter()
+
     // rendering life lines
-    renderLifeLine(gGame.lifes, document.querySelector('.life-panel'), gLifeLinesEmojis.LIFE)
-    renderLifeLine(gGame.hints, document.querySelector('.hint-panel'), gLifeLinesEmojis.HINT)
-    renderLifeLine(gGame.hints, document.querySelector('.safe-clicks-left'), gLifeLinesEmojis.SAFE_CLICK)
+    renderLifeLine(gGame.lifesCount, document.querySelector('.lifes-left'), gLifeLinesEmojis.LIFE)
+    renderLifeLine(gGame.hintsCount, document.querySelector('.hints-left'), gLifeLinesEmojis.HINT)
+    renderLifeLine(gGame.hintsCount, document.querySelector('.safe-clicks-left'), gLifeLinesEmojis.SAFE_CLICK)
+    cursorToPointer(document.querySelector('.manually-panel'))
+    cursorToPointer(document.querySelector('.seven-boom'))
 
     gBoard = buildBoard()
     renderBoard(gBoard)
@@ -115,6 +119,7 @@ function renderCell(elCell, cellContentImg = "") {
 
 //Called when a cell (td) is clicked - leftMouseClick
 function cellClicked(elCell, i, j) {
+    console.log(`gGame.lifesCount:`, gGame.lifesCount)
     //start timer with 1st click
     if (gGame.isFirstClick) return handleFirstClick(elCell, i, j, 'cell-clicked')
     if (!gGame.isOn) return
@@ -131,18 +136,8 @@ function cellClicked(elCell, i, j) {
 
     //  update DOM
     var cellContentImg
-    if (currCell.isMine) {
-        // update model:
-        elCell.classList.add('mine-clicked')
-        cellContentImg = MINE_IMG
-        gGame.lifes--
-
-        // update DOM:
-        const elLife = document.querySelector('.life-panel')
-        if (!gGame.lifes) return gameOver(elLife)
-        else renderLifeLine(gGame.lifes, elLife, gLifeLinesEmojis.LIFE)
-
-    } else { //not a mine
+    if (currCell.isMine) cellContentImg = handleMineClicked(elCell)
+    else { //not a mine
         elCell.classList.add('cell-clicked')
         if (!currCell.minesAroundCount) expandShown(gBoard, elCell, i, j)
         else cellContentImg = currCell.minesAroundCount
@@ -151,9 +146,23 @@ function cellClicked(elCell, i, j) {
     isVictory()
 }
 
+function handleMineClicked(elCell) {
+    // update model:
+    elCell.classList.add('mine-clicked')
+    var cellContentImg = MINE_IMG
+    gGame.lifesCount--
+
+    // update DOM:
+    const elLife = document.querySelector('.lifes-left')
+    console.log(`gGame.lifesCount:`, gGame.lifesCount)
+    if (!gGame.lifesCount) return gameOver()
+    else renderLifeLine(gGame.lifesCount, elLife, gLifeLinesEmojis.LIFE)
+    return cellContentImg
+}
+
 //Called on right click to mark a cell
 function cellMarked(ev, elCell, i, j) {
-    if (gGame.isFirstClick) handleFirstClick(elCell, i, j, 'marked')
+    if (gGame.isFirstClick) return handleFirstClick(elCell, i, j, 'marked')
     ev.preventDefault()
     if (!gGame.isOn) return
 
@@ -184,33 +193,44 @@ function unauthorizedClick() {
     }, 300);
 }
 
+function onClickSevenBoom() {
+    if (!gGame.isFirstClick) return unauthorizedClick()
+    gGame.isSevenBoom = true
+}
+
 function handleFirstClick(elCell, i, j, clickTypeStr) {
-    if (!gGame.isFirstClick) return
+    if (!gGame.isFirstClick) return unauthorizedClick()
+    cursorToNotAllowed(document.querySelector('.manually-panel'))
+    cursorToNotAllowed(document.querySelector('.seven-boom'))
     gGame.isFirstClick = false
     gGame.isOn = true
-    cursorToPointer(document.querySelector('.hint-panel'))
-    cursorToPointer(document.querySelector('.mega-hint-panel'))
-    cursorToPointer(document.querySelector('.safe-click-panel'))
-    cursorToPointer(document.querySelector('.mine-exterminator-panel'))
-    const firstCell = { i: i, j: j }
-    // update model:
-    firstCell.minesAroundCount = 0
+    enableLifeLines()
+    var firstCell = { i: i, j: j }
+    if (!gGame.isSevenBoom) {
+        // update model:
+        gBoard[firstCell.i, firstCell.j].minesAroundCount = 0
+        // update DOM:
+        elCell.classList.add('number-0')
+    } else {
+        insertMinesSevenBoom(gBoard)
+        if (gBoard[i][j].isMine && clickTypeStr !== 'marked') {
+            var cellContentImg = handleMineClicked(elCell)
+            renderCell(elCell, cellContentImg)
+        }
+    }
     if (clickTypeStr === 'marked') {
         gBoard[i][j].isMarked = true
         gGame.markedCount++
         // update DOM:
         elCell.classList.add('marked')
-        console.log(`MARKED_IMG:`, MARKED_IMG)
-        console.log(`1111:`)
     } else {
         gBoard[i][j].isShown = true
         gGame.shownCount++
         // update DOM:
         elCell.classList.add('cell-clicked')
-        renderCell(elCell, '')
+        if (!gBoard[i][j].isMine) renderCell(elCell, '')
     }
-    elCell.classList.add('number-0')
-    insertMines(gBoard, firstCell)
+    if (!gGame.isSevenBoom) insertMines(gBoard, firstCell)
     setMinesNegsCount(gBoard, firstCell)
     renderBoardAfterFirst(gBoard, firstCell)
     if (clickTypeStr !== 'marked') expandShown(gBoard, elCell, firstCell.i, firstCell.j)
@@ -224,6 +244,31 @@ function insertMines(board, firstCell) {
     for (var i = 0; i < gLevel.MINES; i++) {
         currPos = getEmptyPos(board, firstCell)
         board[currPos.i][currPos.j].isMine = true
+    }
+}
+
+function insertMinesSevenBoom(board) {
+    var counter = 0
+    var digit = 0
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board[0].length; j++) {
+            var num = counter
+            if (!counter) {
+                counter++
+                continue
+            }
+            while (num > 0) {
+                var digit = num % 10
+                if (digit === 7) {
+                    board[i][j].isMine = true
+                    break
+                }
+                num = parseInt(num / 10)
+            }
+            if (counter % 7 === 0) board[i][j].isMine = true
+            counter++
+        }
+
     }
 }
 
@@ -273,13 +318,17 @@ function renderBoardAfterFirst(board, firstCell) {
             var currCell = board[i][j]
             if (i === firstCell.i && j === firstCell.j) continue
             const currCellClass = (currCell.isMine) ? 'mine' : `number-${currCell.minesAroundCount}`
+            if (firstCell.i === firstCell.j === -1) {
+                var elCurrCell = document.querySelector((`.cell-${i}-${j}`))
+                elCurrCell.classList.remove()
+            }
+
             document.querySelector(`.cell-${i}-${j}`).classList.add(currCellClass)
         }
     }
 }
 
-function gameOver(elLife) {
-    hideElemet(elLife)
+function gameOver() {
     revealAllMines()
     clearInterval(gTimerInterval)
     gGame.isOn = false
@@ -314,7 +363,7 @@ function expandShown(board, elCell, IdxI1, Idxj1, IdxI2 = IdxI1, Idxj2 = Idxj1) 
         for (var j = Idxj1 - 1; j <= Idxj2 + 1; j++) {
             if (j < 0 || j >= board[0].length) continue
             if (!gMegaHint.isOn && (i === IdxI1 && j === Idxj1)) continue
-            // if (i === IdxI1 && j === Idxj1) continue //if it's the clicked cell continue
+            if (gGame.isSevenBoom && board[i][j].isMine) continue
 
             // update model: (don't update shownCount if hint is on)
             if ((!gGame.isHintOn && !gMegaHint.isOn) && !board[i][j].isShown) {
@@ -333,7 +382,7 @@ function expandShown(board, elCell, IdxI1, Idxj1, IdxI2 = IdxI1, Idxj2 = Idxj1) 
             var elCell = document.querySelector(`.cell-${i}-${j}`)
             elCell.classList.add('cell-clicked')
 
-            if ((gGame.isHintOn || gMegaHint.isOn) && board[i][j].isMine) { //only relevant when hint is on:
+            if ((gGame.isHintOn || gMegaHint.isOn || gGame.isSevenBoom) && board[i][j].isMine) { //only relevant when hint/7-boom is on:
                 renderCell(elCell, MINE_IMG)
                 continue
             } else {
@@ -370,6 +419,12 @@ function setVictory() {
     document.querySelector('.btn-start').innerText = gEmojis.VICTORY
     clearInterval(gTimerInterval)
 }
+
+function onClickManually() {
+    return
+}
+
+
 
 function onClickLvlSelect(elBtn, lvlId) {
     const elBtns = document.querySelectorAll('.btn-lvl')
@@ -449,21 +504,22 @@ function onMineExterminatorClick() {
         gGame.MINES--
         var elCurrMineCell = document.querySelector((`.cell-${currMinePose.i}-${currMinePose.j}`))
         elCurrMineCell.classList.remove('mine')
+        removeCurrMinePoseNegsNumberClass(currMinePose)
     }
-    console.log(`gGame.minesPoses:`, gGame.minesPoses)
-    console.log(`gBoard2:`, gBoard)
+
     setMinesNegsCount(gBoard, { i: -1, j: -1 })
-    renderBoardAfterFirst(gBoard, { i: -1, j: -1 })
-    console.log(`gBoard3:`, gBoard)
+    // renderBoardAfterFirst(gBoard, { i: -1, j: -1 })
+    // console.log(`gBoard3:`, gBoard)
 }
 
 function getRandMinePos() {
     var currMinePose = { i: 0, j: 0 }
     currMinePose.i = +getRandomIntInclusive(0, gLevel.SIZE - 1)
     currMinePose.j = +getRandomIntInclusive(0, gLevel.SIZE - 1)
-    var isAlreadyExist = true
+    var isFirstPos = true
 
-    while (!gBoard[currMinePose.i][currMinePose.j].isMine && isAlreadyExist) {
+    while (!gBoard[currMinePose.i][currMinePose.j].isMine || isFirstPos) {
+        isFirstPos = false
         currMinePose.i = getRandomIntInclusive(0, gLevel.SIZE - 1)
         currMinePose.j = getRandomIntInclusive(0, gLevel.SIZE - 1)
         if (!gGame.minesPoses.length && gBoard[currMinePose.i][currMinePose.j].isMine) {
@@ -473,15 +529,32 @@ function getRandMinePos() {
         }
         for (var i = 0; i < gGame.minesPoses.length; i++) {
             if (gGame.minesPoses[i].i === currMinePose.i && gGame.minesPoses[i].j === currMinePose.j) continue
-            else {
+            else if (gBoard[currMinePose.i][currMinePose.j].isMine) {
                 console.log(`currMinePose2:`, currMinePose)
                 gGame.minesPoses.push(currMinePose)
                 return currMinePose
             }
         }
-        isAlreadyExist = true
     }
     console.log(`gGame.minesPoses123:`, gGame.minesPoses)
+}
+
+function removeCurrMinePoseNegsNumberClass(currMinePose) {
+    for (var i = currMinePose.i - 1; i <= currMinePose.i + 1; i++) {
+        if (i < 0 || i >= gBoard.length) continue
+        for (var j = currMinePose.j - 1; j <= currMinePose.j + 1; j++) {
+            if (j < 0 || j >= gBoard[0].length) continue
+            if ((i === currMinePose.i && j === currMinePose.j)) continue
+            if (gBoard[i][j].isMine) continue
+            var elCurrCell = document.querySelector((`.cell-${currMinePose.i}-${currMinePose.j}`))
+            console.log(`i:`, i)
+            console.log(`j:`, j)
+            console.log(`elCurrCellbefore:`, elCurrCell)
+            console.log('classname', `number-${gBoard[i][j].minesAroundCount}`)
+            elCurrCell.classList.remove(`number-${gBoard[i][j].minesAroundCount}`)
+            console.log(`elCurrCellafter:`, elCurrCell)
+        }
+    }
 }
 
 function onHintClick(el) {
@@ -507,11 +580,10 @@ function handleHint(elCell, currCell, i, j) {
     setTimeout(function () {
         closedShown(gBoard, elCell, i, j)
         gGame.isHintOn = false
-        gGame.hints--
+        gGame.hintsCount--
         // update DOM
-        const elHint = document.querySelector('.hint-panel')
-        if (!gGame.hints) hideElemet(elHint)
-        else renderLifeLine(gGame.hints, elHint, gLifeLinesEmojis.HINT)
+        const elHint = document.querySelector('.hints-left')
+        renderLifeLine(gGame.hintsCount, elHint, gLifeLinesEmojis.HINT)
     }, 2000);
 }
 
@@ -554,6 +626,13 @@ function renderLifeLine(lifeLinesLeft, elLifeLine, lifeLineStr) {
     const updatedLifeLineStr = lifeLineStr.repeat(lifeLinesLeft)
     elLifeLine.innerText = updatedLifeLineStr
     showElemet(elLifeLine)
+}
+
+function enableLifeLines() {
+    cursorToPointer(document.querySelector('.hint-panel'))
+    cursorToPointer(document.querySelector('.mega-hint-panel'))
+    cursorToPointer(document.querySelector('.safe-click-panel'))
+    cursorToPointer(document.querySelector('.mine-exterminator-panel'))
 }
 
 function setTimer() {
@@ -601,7 +680,6 @@ function toggleDarkModeStyle() {
         }
     }
 }
-
 
 //disable the right mouse click contextmenu
 document.querySelector('.table-container').addEventListener(

@@ -14,9 +14,7 @@ header {
 
 .title-box {
     display: flex;
-    text-align: center;
     position: relative;
-    justify-content: center;
     margin: auto;
 }
 
@@ -26,8 +24,7 @@ h1 {
     text-decoration: underline;
     text-decoration-color: rgb(160, 160, 255);
     font-size: 3rem;
-    letter-spacing: 0.4rem;
-    text-shadow: 0 0 0#002bff;
+    letter-spacing: 0.3rem;
 }
 
 p {
@@ -37,19 +34,18 @@ p {
 .dark-mode-panel {
     display: inline;
     position: absolute !important;
-    top: 20%;
+    top: 28%;
     left: -40%;
     cursor: pointer;
     align-items: center;
-    font-size: 1.7rem;
-    padding: 10px;
+    font-size: 1.5rem;
+    padding: 8px;
 }
 
 .dark-mode-emoji {
     justify-content: center;
     text-align: center;
 }
-
 
 /* 
 ========================
@@ -61,8 +57,8 @@ p {
 .switch {
     position: relative;
     display: inline-block;
-    width: 50px;
-    height: 28px;
+    width: 46px;
+    height: 24px;
 }
 
 /* Hide default HTML checkbox */
@@ -88,8 +84,8 @@ p {
 .slider:before {
     position: absolute;
     content: "";
-    height: 20px;
-    width: 20px;
+    height: 16px;
+    width: 16px;
     left: 4px;
     bottom: 4px;
     background-color: white;
@@ -106,9 +102,9 @@ input:focus+.slider {
 }
 
 input:checked+.slider:before {
-    -webkit-transform: translateX(20px);
-    -ms-transform: translateX(20px);
-    transform: translateX(20px);
+    -webkit-transform: translateX(16px);
+    -ms-transform: translateX(16px);
+    transform: translateX(16px);
 }
 
 /* Rounded sliders */
@@ -127,16 +123,15 @@ input:checked+.slider:before {
 */
 
 .lvl-select-panel {
-    margin: 10px auto;
+    margin: 0 10px auto;
     justify-content: center;
+    display: inline-block;
 }
 
-.lvl-select-title {
-    display: block;
+.lvl-select-title,
+.game-modes-title,
+.life-lines-title {
     font-family: 'Open Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 300;
-    text-align: center;
     font-size: 1.175rem;
     margin-bottom: 8px;
 }
@@ -151,18 +146,22 @@ input:checked+.slider:before {
 }
 
 /* 
-========================
-  LIFE LINES
-========================
+===========================
+  GAME MODES && LIFE LINES
+===========================
 */
 
-.life-lines-container-1,
-.life-lines-container-2 {
+.game-modes-container,
+.life-lines-container {
     display: flex;
-    margin-bottom: 20px;
+    margin: 20px 0;
     justify-content: center;
-    flex-wrap: wrap;
-    gap: 15px;
+    gap: 13px;
+}
+
+.game-modes-title,
+.life-lines-title, .manually-title {
+    display: block;
 }
 
 .safe-click-panel,
@@ -172,47 +171,44 @@ input:checked+.slider:before {
 .hint-panel,
 .life-panel,
 .seven-boom,
-.manually-create {
+.manually-panel {
     display: inline-flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 5px 15px;
-    border: 2px solid gray;
-    /* color: red; */
-    font-size: 1.275rem;
+    padding: 5px 13px;
+    font-size: 1.175rem;
     cursor: not-allowed;
     text-align: center;
 }
 
-.undo-panel,
-.mega-hint-panel,
-.hint-panel,
-.life-panel {
-    padding: 8px;
+.manually-panel, .seven-boom{
+    cursor: pointer;
 }
 
-.mine-exterminator-img{
-    width: 40px;
-    height: 40px;
+.seven-boom, .mega-hint-panel{
+    font-size: 1rem;
+    font-weight: 600;
 }
 
+.mine-exterminator-img {
+    margin-top: 4px;
+    width: 33px;
+    height: 33px;
+}
+.safe-click-title,
+.hint-title,
+.life-title, .manually-title {
+    font-size: 0.9rem;
+    font-weight: 600;
 
-.safe-click-panel {
-    flex-direction: column;
 }
 
-.safe-click-count {
-    display: block;
-}
-
-.safe-cell{
+.safe-cell {
     background-color: green !important;
-}   
+}
 
-
-
-.life-panel {
-    cursor: not-allowed;
+.lifes-left {
     color: red;
 }
 
@@ -257,9 +253,6 @@ table {
 .timer {
     font-weight: bold;
     font-size: 1.1875rem;
-    right: 0;
-    color: red;
-
 }
 
 .cell {
@@ -491,7 +484,6 @@ table {
         background-position: 0 0;
     }
 }
-
 
 /* 
 ======================================
