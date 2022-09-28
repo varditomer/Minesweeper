@@ -424,8 +424,6 @@ function onClickManually() {
     return
 }
 
-
-
 function onClickLvlSelect(elBtn, lvlId) {
     const elBtns = document.querySelectorAll('.btn-lvl')
     console.log(`elBtns:`, elBtns)
@@ -462,7 +460,7 @@ function onClickLvlSelect(elBtn, lvlId) {
 
 function onSafeClick() {
     if (!gGame.isOn) return unauthorizedClick()
-    if (!gGame.safeClicks) return unauthorizedClick()
+    if (!gGame.safeClicksCount) return unauthorizedClick()
     const safePos = getSafePos()
     const elCell = document.querySelector((`.cell-${safePos.i}-${safePos.j}`))
     if (gBoard[safePos.i][safePos.j].isMarked) renderCell(elCell, '')
